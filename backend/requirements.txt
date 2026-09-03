@@ -1,8 +1,7 @@
 # Backend dependencies will be added in the next implementation step.
 fastapi
 uvicorn
-transformers
-torch
+huggingface_hub
 
 # fastapi → API banane ke liye
 # uvicorn → FastAPI server run karne ke liye
