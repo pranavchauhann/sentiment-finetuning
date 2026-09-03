@@ -1,10 +1,24 @@
 import { useState } from "react";
-import { ArrowUpRight, LoaderCircle, Sparkles } from "lucide-react";
+import {
+  ArrowUpRight,
+  BrainCircuit,
+  Frown,
+  LoaderCircle,
+  RotateCcw,
+  Smile,
+  Sparkles,
+} from "lucide-react";
 import { predictSentiment } from "./services/api";
 
 const examples = [
-  "A warm, beautifully made film with a brilliant ending.",
-  "The story was slow, predictable, and difficult to finish.",
+  {
+    label: "Positive",
+    text: "A warm, beautifully made film with a brilliant ending.",
+  },
+  {
+    label: "Negative",
+    text: "The story was slow, predictable, and difficult to finish.",
+  },
 ];
 
 function App() {
@@ -13,9 +27,7 @@ function App() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(event) {
-    event.preventDefault();
-    const review = text.trim();
+  async function analyze(review) {
     if (!review || loading) return;
 
     setLoading(true);
@@ -23,78 +35,146 @@ function App() {
     setResult(null);
     try {
       setResult(await predictSentiment(review));
-    } catch (requestError) {
-      setError("Could not reach the prediction service. Please try again.");
+    } catch {
+      setError("The analyzer could not be reached. Please try again in a moment.");
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    analyze(text.trim());
+  }
+
+  function useExample(example) {
+    setText(example);
+    setResult(null);
+    setError("");
+  }
+
+  function resetAnalyzer() {
+    setText("");
+    setResult(null);
+    setError("");
   }
 
   const isPositive = result?.sentiment?.toLowerCase() === "positive";
   const confidence = result ? Math.round(result.confidence * 100) : 0;
 
   return (
-    <main className="page-shell">
-      <nav className="topbar">
+    <main className="site-shell">
+      <div className="ambient ambient-one" />
+      <div className="ambient ambient-two" />
+
+      <nav className="topbar" aria-label="Primary navigation">
         <a className="brand" href="/" aria-label="Sentiment home">
-          <span className="brand-mark"><Sparkles size={16} /></span>
+          <span className="brand-mark"><Sparkles size={16} strokeWidth={2.2} /></span>
           <span>sentiment<span className="brand-dot">.</span></span>
         </a>
-        <span className="model-note">DISTILBERT · IMDB</span>
+
+        <div className="nav-meta">
+          <span className="status-pill"><i /> API LIVE</span>
+          <span className="model-note">DISTILBERT · IMDB</span>
+        </div>
       </nav>
 
-      <section className="hero">
-        <p className="eyebrow">MOVIE REVIEW ANALYSIS</p>
-        <h1>What does your review <em>feel</em> like?</h1>
-        <p className="intro">Paste a review below and our fine-tuned model will read between the lines.</p>
-      </section>
+      <section className="workspace">
+        <div className="hero-copy">
+          <p className="eyebrow"><span>01</span> AI-POWERED SENTIMENT</p>
+          <h1>Read the feeling behind <em>every review.</em></h1>
+          <p className="intro">
+            Turn unstructured movie reviews into a clear sentiment signal with
+            a DistilBERT model fine-tuned on IMDb.
+          </p>
 
-      <section className="analyzer-card">
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="review">YOUR REVIEW</label>
-          <textarea
-            id="review"
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-            placeholder="This movie made me laugh, cry, and want to watch it all over again..."
-            maxLength={2000}
-            disabled={loading}
-          />
-          <div className="form-footer">
-            <span className="character-count">{text.length} / 2000</span>
-            <button type="submit" disabled={!text.trim() || loading}>
-              {loading ? <><LoaderCircle className="spin" size={17} /> Analyzing</> : <>Analyze sentiment <ArrowUpRight size={17} /></>}
-            </button>
+          <dl className="model-stats">
+            <div><dt>93.17%</dt><dd>Test accuracy</dd></div>
+            <div><dt>67M</dt><dd>Parameters</dd></div>
+            <div><dt>INT8</dt><dd>Optimized model</dd></div>
+          </dl>
+
+          <div className="how-it-works">
+            <BrainCircuit size={19} />
+            <p><strong>How it works</strong><span>The model compares language patterns learned from thousands of labeled movie reviews.</span></p>
           </div>
-        </form>
+        </div>
 
-        <div className="examples">
-          <span>TRY AN EXAMPLE</span>
-          {examples.map((example) => (
-            <button key={example} type="button" onClick={() => { setText(example); setResult(null); setError(""); }}>
-              “{example}”
-            </button>
-          ))}
+        <div className="analyzer-column">
+          <section className="analyzer-card">
+            <div className="card-heading">
+              <div>
+                <span className="step-number">02</span>
+                <h2>Analyze a review</h2>
+              </div>
+              {text && (
+                <button className="reset-button" type="button" onClick={resetAnalyzer}>
+                  <RotateCcw size={13} /> Clear
+                </button>
+              )}
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <label htmlFor="review">REVIEW TEXT</label>
+              <div className="textarea-wrap">
+                <textarea
+                  id="review"
+                  value={text}
+                  onChange={(event) => setText(event.target.value)}
+                  placeholder="This movie made me laugh, cry, and want to watch it all over again..."
+                  maxLength={2000}
+                  disabled={loading}
+                />
+                <span className="character-count">{text.length} / 2000</span>
+              </div>
+
+              <button className="analyze-button" type="submit" disabled={!text.trim() || loading}>
+                {loading ? (
+                  <><LoaderCircle className="spin" size={18} /> Reading the review...</>
+                ) : (
+                  <>Analyze sentiment <ArrowUpRight size={18} /></>
+                )}
+              </button>
+            </form>
+          </section>
+
+          <div className="examples">
+            <p>NOT SURE WHAT TO WRITE? TRY ONE.</p>
+            <div className="example-grid">
+              {examples.map((example) => (
+                <button key={example.label} type="button" onClick={() => useExample(example.text)}>
+                  <span className={example.label.toLowerCase()}>{example.label}</span>
+                  <q>{example.text}</q>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {error && <p className="error-message" role="alert">{error}</p>}
+
+          {result && (
+            <section className={`result-card ${isPositive ? "positive" : "negative"}`} aria-live="polite">
+              <div className="verdict-icon">
+                {isPositive ? <Smile size={28} /> : <Frown size={28} />}
+              </div>
+              <div className="verdict-copy">
+                <p>MODEL VERDICT</p>
+                <h2>{result.sentiment}</h2>
+                <span>This review reads as {result.sentiment.toLowerCase()}.</span>
+              </div>
+              <div className="confidence-meter" style={{ "--score": `${confidence * 3.6}deg` }}>
+                <div><strong>{confidence}%</strong><span>confidence</span></div>
+              </div>
+              <p className="confidence-note">Confidence reflects this prediction, not guaranteed accuracy.</p>
+            </section>
+          )}
         </div>
       </section>
 
-      {error && <p className="error-message" role="alert">{error}</p>}
-
-      {result && (
-        <section className={`result-card ${isPositive ? "positive" : "negative"}`} aria-live="polite">
-          <div>
-            <p className="eyebrow">MODEL VERDICT</p>
-            <h2>{result.sentiment}</h2>
-            <p className="result-caption">The review reads as {result.sentiment.toLowerCase()}.</p>
-          </div>
-          <div className="confidence">
-            <span>CONFIDENCE</span>
-            <strong>{confidence}%</strong>
-          </div>
-        </section>
-      )}
-
-      <footer>Fine-tuned on the IMDb dataset · Built with React, FastAPI &amp; DistilBERT</footer>
+      <footer>
+        <span>Fine-tuned on the IMDb dataset</span>
+        <span>React · FastAPI · ONNX · DistilBERT</span>
+      </footer>
     </main>
   );
 }
