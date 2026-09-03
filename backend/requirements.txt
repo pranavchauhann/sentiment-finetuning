@@ -1,9 +1,5 @@
-# Backend dependencies will be added in the next implementation step.
 fastapi
 uvicorn
-huggingface_hub
-
-# fastapi → API banane ke liye
-# uvicorn → FastAPI server run karne ke liye
-# transformers → Hugging Face model/tokenizer load karne ke liye
-# torch → model inference ke liye
+numpy
+onnxruntime
+tokenizers

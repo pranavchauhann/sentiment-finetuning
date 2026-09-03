@@ -14,3 +14,6 @@ dist/
 .DS_Store
 .vscode/
 .idea/
+
+# ONNX Runtime telemetry state
+*.ses
