@@ -5,13 +5,15 @@ from huggingface_hub import InferenceClient
 MODEL_NAME = "pranavchauhann/sentiment-distilbert-imdb"
 
 client = InferenceClient(
-    model=MODEL_NAME,
-    token=os.getenv("HF_TOKEN")
+    provider="hf-inference",
+    api_key=os.environ["HF_TOKEN"]
 )
 
-
 def predict_sentiment(text: str):
-    result = client.text_classification(text)
+    result = client.text_classification(
+        text,
+        model=MODEL_NAME
+    )
 
     best = max(result, key=lambda x: x.score)
 
