@@ -1,28 +1,21 @@
 """Model loading and sentiment prediction logic."""
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import os
+from huggingface_hub import InferenceClient
 
 MODEL_NAME = "pranavchauhann/sentiment-distilbert-imdb"
 
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
+client = InferenceClient(
+    model=MODEL_NAME,
+    token=os.getenv("HF_TOKEN")
+)
 
 
 def predict_sentiment(text: str):
-    inputs = tokenizer(
-        text,
-        return_tensors="pt",
-        truncation=True
-    )
+    result = client.text_classification(text)
 
-    with torch.no_grad():
-        outputs = model(**inputs)
+    best = max(result, key=lambda x: x.score)
 
-    probabilities = torch.softmax(outputs.logits, dim=1)
-
-    predicted_class = torch.argmax(probabilities, dim=1).item()
-    confidence = probabilities[0][predicted_class].item()
-
-    sentiment = "Positive" if predicted_class == 1 else "Negative"
+    sentiment = best.label
+    confidence = best.score
 
     return sentiment, confidence
