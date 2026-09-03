@@ -64,3 +64,34 @@ DistilBERT
 Classification Head  
 ↓  
 Positive / Negative
+
+## Inference
+
+The fine-tuned model can also be used for sentiment prediction on new reviews.
+
+A separate notebook is included:
+
+`sentiment_inference.ipynb`
+
+It supports:
+
+- Single review prediction
+- Positive / Negative sentiment
+- Confidence score
+- Interactive user input
+- Batch prediction for multiple reviews
+
+### Example
+
+Input:
+
+`This movie was absolutely amazing. I loved every minute of it!`
+
+Output:
+
+- Sentiment: Positive
+- Confidence: 99.59%
+
+### Batch Inference
+
+Multiple reviews can also be processed together in a single batch for more efficient prediction.
